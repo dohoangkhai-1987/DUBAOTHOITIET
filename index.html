@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Quy Trình Dự Báo Thời Tiết</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .glass { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); }
+        .step-card:hover { transform: translateY(-5px); transition: all 0.3s ease; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900">
+
+    <!-- Header -->
+    <header class="bg-blue-700 text-white py-12 px-4 shadow-lg">
+        <div class="max-w-6xl mx-auto text-center">
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">Quy Trình Dự Báo Thời Tiết</h1>
+            <p class="text-xl opacity-90">Hệ thống mô phỏng và tính toán các chỉ số khí tượng chuyên nghiệp</p>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 py-12">
+        
+        <!-- Section 1: Quy trình 5 bước -->
+        <section class="mb-16">
+            <h2 class="text-3xl font-bold mb-8 text-center border-b-2 border-blue-500 pb-2 inline-block">Quy Trình Khoa Học</h2>
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                <div class="step-card bg-white p-6 rounded-xl shadow-md text-center border-t-4 border-blue-500">
+                    <div class="text-3xl text-blue-500 mb-3"><i class="fas fa-satellite"></i></div>
+                    <h3 class="font-bold mb-2">1. Thu thập</h3>
+                    <p class="text-sm text-gray-600">Dữ liệu từ trạm khí tượng, vệ tinh và phao biển.</p>
+                </div>
+                <div class="step-card bg-white p-6 rounded-xl shadow-md text-center border-t-4 border-blue-500">
+                    <div class="text-3xl text-blue-500 mb-3"><i class="fas fa-microchip"></i></div>
+                    <h3 class="font-bold mb-2">2. Xử lý</h3>
+                    <p class="text-sm text-gray-600">Đưa dữ liệu vào các siêu máy tính để giải mã.</p>
+                </div>
+                <div class="step-card bg-white p-6 rounded-xl shadow-md text-center border-t-4 border-blue-500">
+                    <div class="text-3xl text-blue-500 mb-3"><i class="fas fa-chart-line"></i></div>
+                    <h3 class="font-bold mb-2">3. Mô hình</h3>
+                    <p class="text-sm text-gray-600">Chạy các mô hình số trị (WRF, GFS, ECMWF).</p>
+                </div>
+                <div class="step-card bg-white p-6 rounded-xl shadow-md text-center border-t-4 border-blue-500">
+                    <div class="text-3xl text-blue-500 mb-3"><i class="fas fa-user-md"></i></div>
+                    <h3 class="font-bold mb-2">4. Phân tích</h3>
+                    <p class="text-sm text-gray-600">Dự báo viên tinh chỉnh kết quả từ máy tính.</p>
+                </div>
+                <div class="step-card bg-white p-6 rounded-xl shadow-md text-center border-t-4 border-blue-500">
+                    <div class="text-3xl text-blue-500 mb-3"><i class="fas fa-broadcast-tower"></i></div>
+                    <h3 class="font-bold mb-2">5. Truyền tin</h3>
+                    <p class="text-sm text-gray-600">Phát tin qua tivi, radio, app và trang web.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Calculator & Logic -->
+        <section class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
+            <!-- Input Form -->
+            <div class="lg:col-span-1 bg-white p-8 rounded-2xl shadow-xl border border-slate-200">
+                <h3 class="text-2xl font-bold mb-6 text-blue-800">Bộ Tính Toán Dự Báo</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Nhiệt độ hiện tại (°C)</label>
+                        <input type="number" id="temp" value="30" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Độ ẩm tương đối (%)</label>
+                        <input type="number" id="humidity" value="75" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Áp suất khí quyển (hPa)</label>
+                        <input type="number" id="pressure" value="1013" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Xu hướng áp suất (trong 3h)</label>
+                        <select id="pressureTrend" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                            <option value="stable">Ổn định</option>
+                            <option value="falling">Đang giảm nhanh</option>
+                            <option value="rising">Đang tăng nhanh</option>
+                        </select>
+                    </div>
+                    <button onclick="calculateForecast()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition duration-300 cursor-pointer">
+                        PHÂN TÍCH KẾT QUẢ
+                    </button>
+                </div>
+            </div>
+
+            <!-- Analysis Result -->
+            <div class="lg:col-span-2 space-y-8">
+                <div id="resultBox" class="bg-gradient-to-br from-blue-50 to-indigo-50 p-8 rounded-2xl border border-blue-100 min-h-[300px] flex flex-col justify-center items-center text-center">
+                    <div id="initialState">
+                        <i class="fas fa-cloud-sun text-6xl text-blue-300 mb-4"></i>
+                        <p class="text-xl text-gray-500 italic">Nhập dữ liệu và nhấn "Phân tích" để xem dự báo mô phỏng</p>
+                    </div>
+                    <div id="forecastResult" class="hidden w-full">
+                        <div class="flex items-center justify-center mb-4">
+                            <div id="weatherIcon" class="text-7xl mr-6"></div>
+                            <div class="text-left">
+                                <h4 id="weatherTitle" class="text-3xl font-bold text-slate-800"></h4>
+                                <p id="weatherDesc" class="text-lg text-slate-600"></p>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 mt-8">
+                            <div class="bg-white p-4 rounded-xl shadow-sm border border-blue-50">
+                                <p class="text-sm text-gray-500">Khả năng mưa</p>
+                                <p id="rainProb" class="text-2xl font-bold text-blue-600">--</p>
+                            </div>
+                            <div class="bg-white p-4 rounded-xl shadow-sm border border-blue-50">
+                                <p class="text-sm text-gray-500">Chỉ số thoải mái</p>
+                                <p id="comfortIdx" class="text-2xl font-bold text-orange-500">--</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chart -->
+                <div class="bg-white p-6 rounded-2xl shadow-lg border border-slate-100">
+                    <h4 class="font-bold mb-4">Mô phỏng biến thiên nhiệt độ (24h tới)</h4>
+                    <canvas id="tempChart" height="100"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Knowledge Base -->
+        <section class="bg-slate-800 text-white p-8 rounded-3xl">
+            <h3 class="text-2xl font-bold mb-6 flex items-center">
+                <i class="fas fa-book-open mr-3"></i> Kiến Thức Khí Tượng
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <h4 class="font-bold text-blue-400 mb-2">Quy luật áp suất</h4>
+                    <p class="text-sm opacity-80">Áp suất giảm thường báo hiệu hệ thống áp thấp hoặc bão đang đến gần. Áp suất cao thường mang lại thời tiết khô ráo, ít mây.</p>
+                </div>
+                <div>
+                    <h4 class="font-bold text-blue-400 mb-2">Điểm sương (Dew Point)</h4>
+                    <p class="text-sm opacity-80">Khi nhiệt độ giảm xuống bằng điểm sương, hơi nước ngưng tụ tạo thành sương mù hoặc mưa.</p>
+                </div>
+                <div>
+                    <h4 class="font-bold text-blue-400 mb-2">Mô hình Numerical</h4>
+                    <p class="text-sm opacity-80">Các mô hình như GFS (Mỹ) hay ECMWF (Châu Âu) sử dụng các phương trình đạo hàm Navier-Stokes để tính toán chuyển động khí quyển.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-slate-900 text-slate-400 py-8 text-center mt-12">
+        <p>&copy; 2024 Weather Process Simulation. Thiết kế cho mục đích giáo dục khí tượng.</p>
+    </footer>
+
+    <script>
+        let myChart;
+
+        function initChart(baseTemp) {
+            const ctx = document.getElementById('tempChart').getContext('2d');
+            const hours = Array.from({length: 12}, (_, i) => (i * 2) + "h");
+            const data = Array.from({length: 12}, (_, i) => {
+                // Giả lập biến thiên nhiệt độ hình sin
+                return baseTemp + Math.sin(i * 0.5) * 5 + (Math.random() - 0.5) * 2;
+            });
+
+            if (myChart) myChart.destroy();
+
+            myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: hours,
+                    datasets: [{
+                        label: 'Nhiệt độ dự kiến (°C)',
+                        data: data,
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: false } }
+                }
+            });
+        }
+
+        function calculateForecast() {
+            const temp = parseFloat(document.getElementById('temp').value);
+            const humidity = parseFloat(document.getElementById('humidity').value);
+            const pressure = parseFloat(document.getElementById('pressure').value);
+            const trend = document.getElementById('pressureTrend').value;
+
+            document.getElementById('initialState').classList.add('hidden');
+            document.getElementById('forecastResult').classList.remove('hidden');
+
+            let title = "";
+            let desc = "";
+            let icon = "";
+            let rainProb = "10%";
+            let comfortIdx = "Tốt";
+
+            // Logic dự báo đơn giản hóa (Rule-based)
+            if (trend === "falling" && humidity > 70) {
+                title = "Sắp có mưa/dông";
+                desc = "Áp suất giảm và độ ẩm cao là dấu hiệu của mây đối lưu phát triển mạnh.";
+                icon = "⛈️";
+                rainProb = "85%";
+                comfortIdx = "Khó chịu (Oai)";
+            } else if (humidity > 85 && temp < 25) {
+                title = "Nhiều mây, sương mù";
+                desc = "Độ ẩm bão hòa có thể gây ra hiện tượng sương mù hoặc mưa phùn.";
+                icon = "🌫️";
+                rainProb = "40%";
+                comfortIdx = "Ẩm ướt";
+            } else if (temp > 33) {
+                title = "Nắng nóng gay gắt";
+                desc = "Áp suất cao và nhiệt độ lớn. Cần đề phòng chỉ số UV cao.";
+                icon = "☀️";
+                rainProb = "5%";
+                comfortIdx = "Rất nóng";
+            } else if (trend === "rising") {
+                title = "Thời tiết đang tốt dần";
+                desc = "Áp suất tăng báo hiệu khối khí ổn định đang chiếm ưu thế.";
+                icon = "🌤️";
+                rainProb = "15%";
+                comfortIdx = "Lý tưởng";
+            } else {
+                title = "Trời nhiều mây";
+                desc = "Các chỉ số ở mức trung bình, thời tiết ổn định trong 12h tới.";
+                icon = "☁️";
+                rainProb = "25%";
+                comfortIdx = "Bình thường";
+            }
+
+            // Cập nhật giao diện
+            document.getElementById('weatherTitle').innerText = title;
+            document.getElementById('weatherDesc').innerText = desc;
+            document.getElementById('weatherIcon').innerText = icon;
+            document.getElementById('rainProb').innerText = rainProb;
+            document.getElementById('comfortIdx').innerText = comfortIdx;
+
+            initChart(temp);
+        }
+
+        // Initialize empty chart on load
+        window.onload = () => {
+            initChart(30);
+        };
+    </script>
+</body>
+</html>
